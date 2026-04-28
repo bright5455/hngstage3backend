@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profiles — Insighta Labs+</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Insighta Labs<span>+</span></div>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profiles.html" class="active">Profiles</a>
+      <a href="search.html">Search</a>
+      <a href="account.html">Account</a>
+    </div>
+    <div class="nav-user">
+      <img id="avatar" src="" alt="avatar" class="avatar">
+      <span id="username"></span>
+      <button id="logout-btn" class="btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h2>Profiles</h2>
+      <div class="header-actions">
+        <a href="profiles_export" id="export-btn" class="btn-outline">Export CSV</a>
+        <button id="create-btn" class="btn-primary" style="display:none">+ Create Profile</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <select id="filter-gender">
+        <option value="">All Genders</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <select id="filter-age-group">
+        <option value="">All Age Groups</option>
+        <option value="child">Child</option>
+        <option value="teenager">Teenager</option>
+        <option value="adult">Adult</option>
+        <option value="senior">Senior</option>
+      </select>
+      <input type="text" id="filter-country" placeholder="Country ID (e.g. NG)">
+      <input type="number" id="filter-min-age" placeholder="Min Age">
+      <input type="number" id="filter-max-age" placeholder="Max Age">
+      <select id="filter-sort">
+        <option value="created_at">Sort: Created At</option>
+        <option value="age">Sort: Age</option>
+        <option value="gender_probability">Sort: Gender Probability</option>
+      </select>
+      <select id="filter-order">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+      <button id="apply-filters" class="btn-primary">Apply</button>
+      <button id="reset-filters" class="btn-outline">Reset</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <div id="loading" class="loading">Loading...</div>
+      <table id="profiles-table" class="table" style="display:none">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Age Group</th>
+            <th>Country</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="profiles-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+
+    <!-- Create Modal -->
+    <div id="create-modal" class="modal" style="display:none">
+      <div class="modal-content">
+        <h3>Create Profile</h3>
+        <input type="text" id="create-name" placeholder="Enter name">
+        <div class="modal-actions">
+          <button id="create-submit" class="btn-primary">Create</button>
+          <button id="create-cancel" class="btn-outline">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="profiles.js"></script>
+</body>
+</html>

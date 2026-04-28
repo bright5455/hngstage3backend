@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Insighta Labs+</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Insighta Labs<span>+</span></div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="profiles.html">Profiles</a>
+      <a href="search.html">Search</a>
+      <a href="account.html">Account</a>
+    </div>
+    <div class="nav-user">
+      <img id="avatar" src="" alt="avatar" class="avatar">
+      <span id="username"></span>
+      <button id="logout-btn" class="btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h2>Dashboard</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Profiles</h3>
+        <p id="total-profiles">—</p>
+      </div>
+      <div class="stat-card">
+        <h3>Your Role</h3>
+        <p id="user-role">—</p>
+      </div>
+      <div class="stat-card">
+        <h3>Last Login</h3>
+        <p id="last-login">—</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

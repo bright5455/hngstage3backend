@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — Insighta Labs+</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Insighta Labs<span>+</span></div>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profiles.html">Profiles</a>
+      <a href="search.html" class="active">Search</a>
+      <a href="account.html">Account</a>
+    </div>
+    <div class="nav-user">
+      <img id="avatar" src="" alt="avatar" class="avatar">
+      <span id="username"></span>
+      <button id="logout-btn" class="btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h2>Natural Language Search</h2>
+    <p class="subtitle">Try: "young males from nigeria", "females above 30", "adult males from kenya"</p>
+
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="e.g. young males from nigeria" class="search-input">
+      <button id="search-btn" class="btn-primary">Search</button>
+    </div>
+
+    <div id="search-results">
+      <div id="loading" class="loading" style="display:none">Searching...</div>
+      <table id="results-table" class="table" style="display:none">
+        <thead>
+          <tr>
+            <th>Name</th><th>Gender</th><th>Age</th>
+            <th>Age Group</th><th>Country</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+      <div id="pagination" class="pagination"></div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>

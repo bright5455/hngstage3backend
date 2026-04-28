@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account — Insighta Labs+</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Insighta Labs<span>+</span></div>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profiles.html">Profiles</a>
+      <a href="search.html">Search</a>
+      <a href="account.html" class="active">Account</a>
+    </div>
+    <div class="nav-user">
+      <img id="avatar" src="" alt="avatar" class="avatar">
+      <span id="username"></span>
+      <button id="logout-btn" class="btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h2>Account</h2>
+    <div class="account-card">
+      <img id="account-avatar" src="" alt="avatar" class="account-avatar">
+      <div class="account-info">
+        <div class="info-row"><label>Username</label><span id="acc-username">—</span></div>
+        <div class="info-row"><label>Email</label><span id="acc-email">—</span></div>
+        <div class="info-row"><label>Role</label><span id="acc-role">—</span></div>
+        <div class="info-row"><label>Last Login</label><span id="acc-last-login">—</span></div>
+        <div class="info-row"><label>Member Since</label><span id="acc-created">—</span></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>
