@@ -20,7 +20,7 @@ export class Profile {
   @Column()
   age_group: string;
 
-  @Column({ length: 10 })
+  @Column({ length: 10, nullable: true })
   country_id: string;
 
   @Column()
