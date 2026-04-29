@@ -23,21 +23,24 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
-  @Get('github')
-  async githubLogin(
-    @Query('cli') cli: string,
-    @Res() res: Response,
-  ) {
-    const clientID = this.configService.get('GITHUB_CLIENT_ID');
-    const callbackURL = encodeURIComponent(
-      'http://localhost:3000/auth/github/callback',
-    );
-    const scope = 'user:email';
-    const state = cli === 'true' ? 'cli' : 'web';
-    return res.redirect(
-      `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${callbackURL}&scope=${scope}&state=${state}`,
-    );
-  }
+ @Get('github')
+async githubLogin(
+  @Query('cli') cli: string,
+  @Res() res: Response,
+) {
+  const clientID = this.configService.get('GITHUB_CLIENT_ID');
+
+  const callbackURL = encodeURIComponent(
+    this.configService.get('GITHUB_CALLBACK_URL'),
+  );
+
+  const scope = 'user:email';
+  const state = cli === 'true' ? 'cli' : 'web';
+
+  return res.redirect(
+    `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${callbackURL}&scope=${scope}&state=${state}`,
+  );
+}
 
   @Get('github/callback')
   async githubCallback(@Req() req: Request, @Res() res: Response) {
