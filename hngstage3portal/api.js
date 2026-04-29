@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://hngstage3backend-production.up.railway.app';
 const API_HEADERS = { 'X-API-Version': '1', 'Content-Type': 'application/json' };
 
 async function apiFetch(path, options = {}) {

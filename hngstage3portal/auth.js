@@ -1,6 +1,6 @@
 async function checkAuth() {
   try {
-    const res = await fetch('http://localhost:3000/auth/me', {
+    const res = await fetch('https://hngstage3backend-production.up.railway.app/auth/me',  {
       credentials: 'include',
       headers: { 'X-API-Version': '1' },
     });

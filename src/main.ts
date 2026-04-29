@@ -10,7 +10,12 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:5500',
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:5500',
+      process.env.FRONTEND_URL, // Netlify URL
+    ].filter(Boolean),
     credentials: true,
   });
 
