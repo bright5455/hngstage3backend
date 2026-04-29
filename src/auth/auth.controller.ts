@@ -15,6 +15,7 @@ import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +25,7 @@ export class AuthController {
   ) {}
 
  @Get('github')
+  @UseGuards(AuthGuard('github'))
 async githubLogin(
   @Query('cli') cli: string,
   @Res() res: Response,
@@ -43,6 +45,7 @@ async githubLogin(
 }
 
   @Get('github/callback')
+   @UseGuards(AuthGuard('github'))
   async githubCallback(@Req() req: Request, @Res() res: Response) {
     const code = req.query.code as string;
     const state = req.query.state as string;

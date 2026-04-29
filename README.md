@@ -1,98 +1,264 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Insighta Labs+ (Stage 3)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 🚀 Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Insighta Labs+ is a secure, multi-interface platform built on top of the Stage 2 Profile Intelligence System. This stage introduces authentication, authorization, multi-client support (CLI + Web), and production-ready security practices.
 
-## Description
+All Stage 2 features — filtering, sorting, pagination, and natural language search — are fully preserved and extended.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🌐 Live URLs
 
-```bash
-$ pnpm install
+* **Backend (Railway):** [https://hngstage3backend-production.up.railway.app](https://hngstage3backend-production.up.railway.app)
+* **Web Portal (Netlify):** [https://classy-kheer-00d6fb.netlify.app](https://classy-kheer-00d6fb.netlify.app)
+
+---
+
+## 📦 Repositories
+
+* **Backend:** [https://github.com/bright5455/hngstage3backend](https://github.com/bright5455/hngstage3backend)
+* **Web Portal:** [https://github.com/bright5455/hngstage3portal](https://github.com/bright5455/hngstage3portal)
+* **CLI Tool:** [https://github.com/bright5455/hngstage3cli](https://github.com/bright5455/hngstage3cli)
+
+---
+
+## 🧠 System Architecture
+
+The system follows a modular, service-oriented architecture:
+
+* **Backend (NestJS + PostgreSQL)**
+
+  * Handles authentication, authorization, business logic
+  * Exposes RESTful APIs with versioning
+
+* **Web Portal (Netlify)**
+
+  * Browser-based UI
+  * Uses HTTP-only cookies for authentication
+
+* **CLI Tool (Node.js)**
+
+  * Globally installable
+  * Stores credentials locally at `~/.insighta/credentials.json`
+
+All clients communicate with a single backend API.
+
+---
+
+## 🔐 Authentication Flow
+
+### GitHub OAuth (Web)
+
+1. User clicks “Login with GitHub”
+2. Redirected to GitHub OAuth
+3. GitHub redirects back to backend callback
+4. Backend:
+
+   * Exchanges code for access token
+   * Fetches user data
+   * Creates/updates user
+   * Generates JWT tokens
+5. Tokens stored as HTTP-only cookies
+6. User redirected to dashboard
+
+### GitHub OAuth (CLI)
+
+1. CLI opens browser
+2. User authenticates via GitHub
+3. Backend redirects to CLI callback
+4. CLI captures tokens
+5. Tokens saved to:
+
+   ```bash
+   ~/.insighta/credentials.json
+   ```
+
+---
+
+## 🔑 Token Management
+
+* **Access Token**
+
+  * Short-lived (3 minutes)
+  * Used for API access
+
+* **Refresh Token**
+
+  * Longer-lived (5 minutes)
+  * Used to generate new access tokens
+
+### Refresh Flow
+
+* Automatically handled via `/auth/refresh`
+* Web uses cookies
+* CLI uses stored tokens
+
+---
+
+## 👥 Role-Based Access Control (RBAC)
+
+Roles:
+
+* `ADMIN`
+* `ANALYST`
+
+### Enforcement
+
+* Implemented via custom `@Roles()` decorator
+* Guard checks user role from JWT
+* Applied across all protected endpoints
+
+### Example
+
+```ts
+@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, RolesGuard)
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ pnpm run start
+## 📊 Pagination (Updated Format)
 
-# watch mode
-$ pnpm run start:dev
+All endpoints return:
 
-# production mode
-$ pnpm run start:prod
+```json
+{
+  "data": [],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 10
+  }
+}
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## 🔍 Natural Language Search
 
-# e2e tests
-$ pnpm run test:e2e
+Users can query using plain English:
 
-# test coverage
-$ pnpm run test:cov
+Example:
+
+```
+"female users in Lagos with fatigue"
 ```
 
-## Deployment
+The system parses:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+* Filters
+* Keywords
+* Conditions
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Then converts to structured database queries.
+
+---
+
+## 📁 CSV Export
+
+* Available for profile data
+* Converts filtered results into downloadable CSV
+* Supports admin-level access only
+
+---
+
+## 💻 CLI Tool
+
+### Installation
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+npm install -g insighta-cli
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Usage
 
-## Resources
+```bash
+insighta login
+insighta profiles
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Credential Storage
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+~/.insighta/credentials.json
+```
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 🌍 Web Portal
 
-## Stay in touch
+* Hosted on Netlify
+* Uses secure cookies
+* CSRF protection enabled
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Features
 
-## License
+* GitHub login
+* Dashboard
+* Profile viewing
+* API interaction
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🛡️ Security Features
+
+* Helmet (secure headers)
+* HTTP-only cookies
+* CSRF protection
+* Rate limiting
+* Input validation (class-validator)
+* Environment-based configs
+
+---
+
+## ⚡ Rate Limiting & Logging
+
+* Throttling via NestJS Throttler
+* Prevents abuse
+* Logs incoming requests for monitoring
+
+---
+
+## 🧪 Edge Case Handling
+
+* Missing GitHub email
+* Token expiration
+* Invalid refresh tokens
+* Unauthorized access
+* Network failures
+
+---
+
+## 🧱 Code Quality
+
+* Modular structure
+* DTO validation
+* Strong typing
+* Clean service/controller separation
+
+---
+
+## ✅ Summary
+
+Insighta Labs+ delivers:
+
+* Secure authentication (OAuth + JWT)
+* Multi-client support (Web + CLI)
+* Role-based access control
+* Scalable architecture
+* Production-ready deployment
+
+---
+
+## 📌 Environment Variables
+
+```env
+FRONTEND_URL=https://classy-kheer-00d6fb.netlify.app
+GITHUB_CALLBACK_URL=https://hngstage3backend-production.up.railway.app/auth/github/callback
+DATABASE_URL=your_database_url
+JWT_SECRET=your_secret
+```
+
+---
