@@ -12,6 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
+import * as crypto from 'crypto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
@@ -33,9 +34,11 @@ export class AuthController {
       this.configService.get('GITHUB_CALLBACK_URL'),
     );
 
-    return res.redirect(
-      `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${callbackURL}&scope=user:email`,
-    );
+    const state = crypto.randomBytes(16).toString('hex');
+
+return res.redirect(
+  `https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=${callbackURL}&scope=user:email&state=${state}`
+);
   }
 
   
