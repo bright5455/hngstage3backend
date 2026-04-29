@@ -21,17 +21,24 @@ import { LoggerMiddleware } from './common/logger.middleware';
         url: config.get<string>('DATABASE_URL'),
         entities: [Profile, User],
         synchronize: true,
-        ssl: config.get('NODE_ENV') === 'production'
-          ? { rejectUnauthorized: false }
-          : false,
+        ssl:
+          config.get('NODE_ENV') === 'production'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
     }),
-ThrottlerModule.forRoot([
-  {
-    ttl: 60,
-    limit: 10,
-  },
-]),
+    ThrottlerModule.forRoot([
+      {
+        name: 'auth',
+        ttl: 60000,
+        limit: 10,
+      },
+      {
+        name: 'default',
+        ttl: 60000,
+        limit: 60,
+      },
+    ]),
     AuthModule,
     UsersModule,
     ProfilesModule,
