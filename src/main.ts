@@ -9,15 +9,11 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(helmet());
 
+app.setGlobalPrefix('api/v1');
+
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:5500',
-      process.env.FRONTEND_URL, // Netlify URL
-    ].filter(Boolean),
-    credentials: true,
-  });
+  origin: '*',
+});
 
   await app.listen(process.env.PORT ?? 3000);
 }

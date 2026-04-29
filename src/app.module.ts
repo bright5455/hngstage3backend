@@ -26,13 +26,12 @@ import { LoggerMiddleware } from './common/logger.middleware';
           : false,
       }),
     }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: () => ({
-        throttlers: [{ ttl: 60000, limit: 60 }],
-      }),
-    }),
+ThrottlerModule.forRoot([
+  {
+    ttl: 60,
+    limit: 10,
+  },
+]),
     AuthModule,
     UsersModule,
     ProfilesModule,

@@ -20,6 +20,7 @@ export class AuthService {
     username: string;
     email: string;
     avatarUrl: string;
+    role: 'ANALYST'
   }) {
     return this.usersService.createOrUpdate(profile);
   }

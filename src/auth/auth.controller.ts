@@ -16,6 +16,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
 
  @Get('github')
   @UseGuards(AuthGuard('github'))
+  @UseGuards(ThrottlerGuard)
 async githubLogin(
   @Query('cli') cli: string,
   @Res() res: Response,
@@ -45,144 +47,102 @@ async githubLogin(
 }
 
   @Get('github/callback')
-   @UseGuards(AuthGuard('github'))
-  async githubCallback(@Req() req: Request, @Res() res: Response) {
-    const code = req.query.code as string;
-    const state = req.query.state as string;
-    const isCli = state === 'cli';
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
+async githubCallback(@Req() req: Request, @Res() res: Response) {
+  const code = req.query.code as string;
+  const state = req.query.state as string;
 
-    if (!code) {
-      return res.redirect(
-        `${this.configService.get('FRONTEND_URL')}/index.html`,
-      );
-    }
-
-    try {
-      // Exchange code for GitHub token
-      const tokenRes = await fetch(
-        'https://github.com/login/oauth/access_token',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            client_id: this.configService.get('GITHUB_CLIENT_ID'),
-            client_secret: this.configService.get('GITHUB_CLIENT_SECRET'),
-            code,
-          }),
-        },
-      );
-
-      const tokenData: any = await tokenRes.json();
-      const githubToken = tokenData.access_token;
-
-      // Get user info
-      const userRes = await fetch('https://api.github.com/user', {
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/json',
-        },
-      });
-      const githubUser: any = await userRes.json();
-
-      // Get emails
-      const emailRes = await fetch('https://api.github.com/user/emails', {
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/json',
-        },
-      });
-      const emails: any[] = await emailRes.json();
-      const primaryEmail =
-        emails.find((e: any) => e.primary)?.email ?? null;
-
-      // Create or update user
-      const user = await this.authService.validateGithubUser({
-        githubId: String(githubUser.id),
-        username: githubUser.login,
-        email: primaryEmail,
-        avatarUrl: githubUser.avatar_url,
-      });
-
-      const { access_token, refresh_token } =
-        await this.authService.generateTokens(user);
-
-      if (isCli) {
-        return res.redirect(
-          `http://localhost:9876/callback?access_token=${access_token}&refresh_token=${refresh_token}&username=${user.username}`,
-        );
-      }
-
-      // Web flow — set HTTP-only cookies
-      res.cookie('access_token', access_token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 3 * 60 * 1000,
-      });
-
-      res.cookie('refresh_token', refresh_token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 5 * 60 * 1000,
-      });
-
-      return res.redirect(
-        `${this.configService.get('FRONTEND_URL')}/dashboard.html`,
-      );
-    } catch (err) {
-      return res.redirect(
-        `${this.configService.get('FRONTEND_URL')}/index.html?error=auth_failed`,
-      );
-    }
+  if (!code) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Missing code',
+    });
   }
 
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
-  async refresh(
-    @Body() body: any,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const refreshToken =
-      body.refresh_token ?? req.cookies?.refresh_token;
+  if (!state) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Missing state',
+    });
+  }
 
-    if (!refreshToken) {
-      throw new UnauthorizedException({
+  try {
+    const tokenRes = await fetch(
+      'https://github.com/login/oauth/access_token',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: this.configService.get('GITHUB_CLIENT_ID'),
+          client_secret: this.configService.get('GITHUB_CLIENT_SECRET'),
+          code,
+        }),
+      },
+    );
+
+    const tokenData: any = await tokenRes.json();
+
+    if (!tokenData.access_token) {
+      return res.status(401).json({
         status: 'error',
-        message: 'Refresh token required',
+        message: 'Invalid code or token exchange failed',
       });
     }
 
-    const tokens = await this.authService.refreshTokens(refreshToken);
-    const isProduction =
-      this.configService.get('NODE_ENV') === 'production';
+    const githubToken = tokenData.access_token;
 
-    if (req.cookies?.refresh_token) {
-      res.cookie('access_token', tokens.access_token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 3 * 60 * 1000,
-      });
-      res.cookie('refresh_token', tokens.refresh_token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 5 * 60 * 1000,
+    // Fetch user
+    const userRes = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${githubToken}` },
+    });
+
+    const githubUser: any = await userRes.json();
+
+    if (!githubUser?.id) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid GitHub user',
       });
     }
+
+    const user = await this.authService.validateGithubUser({
+      githubId: String(githubUser.id),
+      username: githubUser.login,
+      email: null,
+      avatarUrl: githubUser.avatar_url,
+      role: 'ANALYST',
+    });
+
+    const tokens = await this.authService.generateTokens(user);
 
     return res.json({
       status: 'success',
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
+      ...tokens,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'OAuth failed',
     });
   }
+}
+
+ @Post('refresh')
+@HttpCode(200)
+async refresh(@Body() body: any) {
+  if (!body.refresh_token) {
+    throw new UnauthorizedException('Refresh token required');
+  }
+
+  const tokens = await this.authService.refreshTokens(body.refresh_token);
+
+  return {
+    status: 'success',
+    ...tokens,
+  };
+}
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)

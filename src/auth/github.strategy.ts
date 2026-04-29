@@ -30,6 +30,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     username: profile.username,
     email: profile.emails?.[0]?.value ?? null,
     avatarUrl: profile.photos?.[0]?.value ?? null,
+    role: 'ANALYST',
   });
 
   return Object.assign({}, user, { oauthState: req.query.state ?? '' });
